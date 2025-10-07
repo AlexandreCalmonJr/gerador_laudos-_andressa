@@ -8,106 +8,252 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <!-- Barra de Progresso -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
     <div class="container main-container">
-        <h1 class="mb-4 text-center"><i class="bi bi-file-earmark-text-fill"></i> Gerador de Laudo de Vistoria</h1>
+        <!-- Cabeçalho -->
+        <div class="header-section text-center mb-4">
+            <div class="icon-wrapper">
+                <i class="bi bi-file-earmark-text-fill"></i>
+            </div>
+            <h1 class="display-5 fw-bold mb-2">Gerador de Laudo de Vistoria</h1>
+            <p class="text-muted">Preencha os dados e gere seu laudo profissional em segundos</p>
+        </div>
+
+        <!-- Alertas -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-{{ 'exclamation-triangle-fill' if category == 'error' else 'check-circle-fill' if category == 'success' else 'info-circle-fill' }}"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         <form action="/gerar" method="POST" enctype="multipart/form-data" id="laudo-form">
             
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <!-- Navegação por Abas -->
+            <ul class="nav nav-pills nav-fill mb-4" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="geral-tab" data-bs-toggle="tab" data-bs-target="#geral" type="button" role="tab"><i class="bi bi-person-lines-fill"></i> Informações Gerais</button>
+                    <button class="nav-link active" id="geral-tab" data-bs-toggle="tab" data-bs-target="#geral" type="button" role="tab">
+                        <i class="bi bi-person-lines-fill"></i>
+                        <span>Informações Gerais</span>
+                    </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="comodos-tab" data-bs-toggle="tab" data-bs-target="#comodos" type="button" role="tab"><i class="bi bi-house-door-fill"></i> Seções do Imóvel</button>
+                    <button class="nav-link" id="comodos-tab" data-bs-toggle="tab" data-bs-target="#comodos" type="button" role="tab">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Seções do Imóvel</span>
+                    </button>
                 </li>
             </ul>
 
-            <div class="tab-content border border-top-0 mb-4" id="myTabContent">
-                <div class="tab-pane fade show active p-3" id="geral" role="tabpanel">
-    
-                    <fieldset class="mb-3">
-                        <legend class="fs-5 border-bottom pb-2 mb-3"><i class="bi bi-building"></i> Imóvel e Vistoria</legend>
-                        <div class="mb-3">
-                            <label class="form-label">Endereço Completo do Imóvel</label>
-                            <input type="text" name="ENDERECO_IMOVEL" class="form-control">
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Data da Vistoria</label>
-                                <input type="text" name="DATA_VISTORIA" class="form-control" placeholder="ex: 09 de julho de 2025">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Data do Contrato</label>
-                                <input type="text" name="DATA_CONTRATO" class="form-control" placeholder="ex: 09 de julho de 2025">
-                            </div>
-                        </div>
-                    </fieldset>
-                
-                    <fieldset class="mb-3">
-                        <legend class="fs-5 border-bottom pb-2 mb-3"><i class="bi bi-person-badge"></i> Locadores</legend>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Nome Locador 1</label><input type="text" name="LOCADOR_NOME_1" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">CPF Locador 1</label><input type="text" name="LOCADOR_CPF_1" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Nome Locador 2</label><input type="text" name="LOCADOR_NOME_2" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">CPF Locador 2</label><input type="text" name="LOCADOR_CPF_2" class="form-control"></div>
-                        </div>
-                    </fieldset>
+            <div class="tab-content" id="myTabContent">
+                <!-- ABA 1: Informações Gerais -->
+                <div class="tab-pane fade show active" id="geral" role="tabpanel">
                     
-                    <fieldset class="mb-3">
-                        <legend class="fs-5 border-bottom pb-2 mb-3"><i class="bi bi-people-fill"></i> Locatários</legend>
-                        <div class="row">
-                             <div class="col-md-6 mb-3"><label class="form-label">Nome Locatário 1</label><input type="text" name="LOCATARIO_NOME_1" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">CPF Locatário 1</label><input type="text" name="LOCATARIO_CPF_1" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Nome Locatário 2</label><input type="text" name="LOCATARIO_NOME_2" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">CPF Locatário 2</label><input type="text" name="LOCATARIO_CPF_2" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Contatos (Telefones)</label><input type="text" name="CONTATOS_LOCATARIAS" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Email</label><input type="email" name="EMAIL_LOCATARIAS" class="form-control"></div>
+                    <!-- Imóvel e Vistoria -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="bi bi-building"></i> Dados do Imóvel e Vistoria
                         </div>
-                    </fieldset>
-                
-                    <fieldset class="mb-3">
-                        <legend class="fs-5 border-bottom pb-2 mb-3"><i class="bi bi-person-workspace"></i> Corretor</legend>
-                         <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Nome do Corretor</label><input type="text" name="NOME_CORRETOR" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">CRECI</label><input type="text" name="CRECI_CORRETOR" class="form-control"></div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label required">Endereço Completo do Imóvel</label>
+                                <input type="text" name="ENDERECO_IMOVEL" class="form-control" placeholder="Rua, número, bairro, cidade - Estado" required>
+                                <div class="form-text">Digite o endereço completo do imóvel</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label required">Data da Vistoria</label>
+                                    <input type="text" name="DATA_VISTORIA" class="form-control" placeholder="09 de outubro de 2025" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Data do Contrato</label>
+                                    <input type="text" name="DATA_CONTRATO" class="form-control" placeholder="09 de outubro de 2025">
+                                </div>
+                            </div>
                         </div>
-                    </fieldset>
+                    </div>
                 
+                    <!-- Locadores -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="bi bi-person-badge"></i> Dados dos Locadores
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nome Locador 1</label>
+                                    <input type="text" name="LOCADOR_NOME_1" class="form-control" placeholder="Nome completo">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CPF Locador 1</label>
+                                    <input type="text" name="LOCADOR_CPF_1" class="form-control" placeholder="000.000.000-00">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nome Locador 2</label>
+                                    <input type="text" name="LOCADOR_NOME_2" class="form-control" placeholder="Nome completo (opcional)">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CPF Locador 2</label>
+                                    <input type="text" name="LOCADOR_CPF_2" class="form-control" placeholder="000.000.000-00 (opcional)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Locatários -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="bi bi-people-fill"></i> Dados dos Locatários
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label required">Nome Locatário 1</label>
+                                    <input type="text" name="LOCATARIO_NOME_1" class="form-control" placeholder="Nome completo" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CPF Locatário 1</label>
+                                    <input type="text" name="LOCATARIO_CPF_1" class="form-control" placeholder="000.000.000-00">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nome Locatário 2</label>
+                                    <input type="text" name="LOCATARIO_NOME_2" class="form-control" placeholder="Nome completo (opcional)">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CPF Locatário 2</label>
+                                    <input type="text" name="LOCATARIO_CPF_2" class="form-control" placeholder="000.000.000-00 (opcional)">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Contatos (Telefones)</label>
+                                    <input type="text" name="CONTATOS_LOCATARIAS" class="form-control" placeholder="(00) 00000-0000">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">E-mail</label>
+                                    <input type="email" name="EMAIL_LOCATARIAS" class="form-control" placeholder="email@exemplo.com">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Corretor -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="bi bi-person-workspace"></i> Dados do Corretor
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nome do Corretor</label>
+                                    <input type="text" name="NOME_CORRETOR" class="form-control" placeholder="Nome completo">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CRECI</label>
+                                    <input type="text" name="CRECI_CORRETOR" class="form-control" placeholder="CRECI 00000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-primary btn-lg" onclick="document.getElementById('comodos-tab').click()">
+                            Próximo: Seções do Imóvel <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="tab-pane fade p-3" id="comodos" role="tabpanel">
+                <!-- ABA 2: Cômodos -->
+                <div class="tab-pane fade" id="comodos" role="tabpanel">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Dica:</strong> Preencha apenas os cômodos que existem no imóvel. Campos vazios serão ignorados.
+                    </div>
+
                     <div class="accordion" id="accordionComodos">
-                        {% for comodo_id, comodo_nome in [('externa', 'Área Externa'), ('sala', 'Sala'), ('cozinha', 'Cozinha'), ('banheiro_social', 'Banheiro Social'), ('quarto1', 'Quarto 1'), ('quarto2', 'Quarto 2'), ('servico', 'Área de Serviço'), ('fundos', 'Área dos Fundos'), ('gourmet', 'Área Gourmet'), ('banheiro_edicula', 'Banheiro Edícula'), ('laterais', 'Laterais')] %}
+                        {% for comodo_id, comodo_nome in [
+                            ('externa', 'Área Externa'), 
+                            ('sala', 'Sala'), 
+                            ('cozinha', 'Cozinha'), 
+                            ('banheiro_social', 'Banheiro Social'), 
+                            ('quarto1', 'Quarto 1'), 
+                            ('quarto2', 'Quarto 2'), 
+                            ('servico', 'Área de Serviço'), 
+                            ('fundos', 'Área dos Fundos'), 
+                            ('gourmet', 'Área Gourmet'), 
+                            ('banheiro_edicula', 'Banheiro Edícula'), 
+                            ('laterais', 'Laterais')
+                        ] %}
                         <div class="accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ comodo_id }}">
-                                    {{ comodo_nome }}
+                                    <i class="bi bi-door-open me-2"></i> {{ comodo_nome }}
                                 </button>
                             </h2>
                             <div id="collapse-{{ comodo_id }}" class="accordion-collapse collapse" data-bs-parent="#accordionComodos">
                                 <div class="accordion-body">
                                     <div class="row">
-                                        <div class="col-md-7">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold">Apresentação</label>
-                                                <textarea name="APRESENTACAO_{{ comodo_id.upper() }}" class="form-control" rows="8" placeholder="Ex: Pintura em bom estado de conservação; Gramado com caminhos de pisos de pedras; Plantas decorativas..."></textarea>
-                                            </div>
+                                        <div class="col-lg-7 mb-3">
+                                            <label class="form-label fw-bold">
+                                                <i class="bi bi-card-text"></i> Apresentação/Descrição
+                                            </label>
+                                            <textarea 
+                                                name="APRESENTACAO_{{ comodo_id.upper() }}" 
+                                                class="form-control" 
+                                                rows="8" 
+                                                placeholder="Descreva o estado do cômodo. Ex: Pintura em bom estado, piso sem avarias, portas e janelas funcionando perfeitamente..."
+                                            ></textarea>
                                         </div>
-                                        <div class="col-md-5">
+                                        <div class="col-lg-5">
                                             <div class="mb-3">
-                                                <label class="form-label">Visão Geral</label>
-                                                <input type="text" name="VISAO_GERAL_{{ comodo_id.upper() }}" value="bom estado de conservação" class="form-control">
+                                                <label class="form-label">
+                                                    <i class="bi bi-eye"></i> Visão Geral
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    name="VISAO_GERAL_{{ comodo_id.upper() }}" 
+                                                    value="bom estado de conservação" 
+                                                    class="form-control"
+                                                    placeholder="Estado geral do cômodo"
+                                                >
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Sinalização</label>
-                                                <input type="text" name="SINALIZACAO_{{ comodo_id.upper() }}" value="N/A" class="form-control">
+                                                <label class="form-label">
+                                                    <i class="bi bi-exclamation-triangle"></i> Sinalização
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    name="SINALIZACAO_{{ comodo_id.upper() }}" 
+                                                    value="N/A" 
+                                                    class="form-control"
+                                                    placeholder="Observações especiais"
+                                                >
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label fw-bold"><i class="bi bi-camera-fill"></i> Imagens</label>
-                                                <input type="file" class="filepond" name="imagens_{{ comodo_id }}" multiple>
+                                                <label class="form-label fw-bold">
+                                                    <i class="bi bi-camera-fill"></i> Fotos do Cômodo
+                                                </label>
+                                                <input 
+                                                    type="file" 
+                                                    class="filepond" 
+                                                    name="imagens_{{ comodo_id }}" 
+                                                    multiple 
+                                                    accept="image/*"
+                                                >
+                                                <small class="form-text text-muted">
+                                                    Formatos: JPG, PNG, GIF, WebP (máx. 16MB cada)
+                                                </small>
                                             </div>
                                         </div>
                                     </div>
@@ -119,28 +265,158 @@
                 </div>
             </div>
 
-            <div class="d-grid">
-                <button type="submit" id="btn-gerar" class="btn btn-primary btn-lg">
-                    <span id="btn-text">Gerar Laudo</span>
-                    <span id="loading-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                </button>
+            <!-- Botão de Submit -->
+            <div class="submit-section mt-4">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <button type="button" class="btn btn-outline-secondary btn-lg w-100" onclick="window.location.href='/'">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </button>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <button type="submit" id="btn-gerar" class="btn btn-primary btn-lg w-100">
+                            <span id="btn-text">
+                                <i class="bi bi-file-earmark-check"></i> Gerar Laudo
+                            </span>
+                            <span id="loading-spinner" class="d-none">
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                Processando...
+                            </span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
 
+    <!-- Footer -->
+    <footer class="text-center py-4 text-muted">
+        <small>© 2025 Sistema de Laudos de Vistoria | Desenvolvido com <i class="bi bi-heart-fill text-danger"></i></small>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
     <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
     
     <script>
-        // Inicializa o FilePond em todos os inputs de arquivo
+        // Registra plugins do FilePond
+        FilePond.registerPlugin(
+            FilePondPluginImagePreview,
+            FilePondPluginFileValidateType,
+            FilePondPluginFileValidateSize
+        );
+
+        // Configuração do FilePond
+        FilePond.setOptions({
+            acceptedFileTypes: ['image/*'],
+            maxFileSize: '16MB',
+            labelIdle: 'Arraste fotos ou <span class="filepond--label-action">clique aqui</span>',
+            labelFileProcessing: 'Carregando',
+            labelFileProcessingComplete: 'Carregado',
+            labelTapToCancel: 'clique para cancelar',
+            labelTapToRetry: 'clique para tentar novamente',
+            labelFileTypeNotAllowed: 'Tipo de arquivo inválido',
+            fileValidateTypeLabelExpectedTypes: 'Apenas imagens são permitidas',
+            labelMaxFileSizeExceeded: 'Arquivo muito grande',
+            labelMaxFileSize: 'Tamanho máximo: {filesize}',
+        });
+
+        // Inicializa FilePond em todos os inputs
         FilePond.parse(document.body);
 
-        // Adiciona o listener para o envio do formulário
-        document.getElementById('laudo-form').addEventListener('submit', function() {
-            const btn = document.getElementById('btn-gerar');
-            btn.disabled = true; // Desabilita o botão
-            document.getElementById('btn-text').classList.add('d-none'); // Esconde o texto
-            document.getElementById('loading-spinner').classList.remove('d-none'); // Mostra o spinner
+        // Controle do formulário
+        const form = document.getElementById('laudo-form');
+        const btnGerar = document.getElementById('btn-gerar');
+        const btnText = document.getElementById('btn-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        form.addEventListener('submit', function(e) {
+            // Desabilita o botão e mostra loading
+            btnGerar.disabled = true;
+            btnText.classList.add('d-none');
+            loadingSpinner.classList.remove('d-none');
+            
+            // Validação básica
+            const nomeLocatario = document.querySelector('input[name="LOCATARIO_NOME_1"]').value;
+            const endereco = document.querySelector('input[name="ENDERECO_IMOVEL"]').value;
+            const dataVistoria = document.querySelector('input[name="DATA_VISTORIA"]').value;
+            
+            if (!nomeLocatario || !endereco || !dataVistoria) {
+                e.preventDefault();
+                btnGerar.disabled = false;
+                btnText.classList.remove('d-none');
+                loadingSpinner.classList.add('d-none');
+                alert('Por favor, preencha todos os campos obrigatórios marcados com *');
+                return false;
+            }
+        });
+
+        // Barra de progresso ao rolar a página
+        window.addEventListener('scroll', function() {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progress-bar').style.width = scrolled + '%';
+        });
+
+        // Auto-save em localStorage (opcional)
+        const saveFormData = () => {
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                if (typeof value === 'string') {
+                    data[key] = value;
+                }
+            }
+            localStorage.setItem('laudo_draft', JSON.stringify(data));
+        };
+
+        // Restaurar rascunho
+        const loadFormData = () => {
+            const saved = localStorage.getItem('laudo_draft');
+            if (saved) {
+                const data = JSON.parse(saved);
+                Object.keys(data).forEach(key => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input && input.type !== 'file') {
+                        input.value = data[key];
+                    }
+                });
+            }
+        };
+
+        // Carrega rascunho ao iniciar
+        window.addEventListener('load', loadFormData);
+
+        // Salva a cada 30 segundos
+        setInterval(saveFormData, 30000);
+
+        // Limpa rascunho após envio bem-sucedido
+        form.addEventListener('submit', function() {
+            setTimeout(() => {
+                localStorage.removeItem('laudo_draft');
+            }, 1000);
+        });
+
+        // Contador de caracteres para textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+            const maxLength = 2000;
+            const counter = document.createElement('small');
+            counter.className = 'form-text text-muted';
+            textarea.parentNode.appendChild(counter);
+            
+            const updateCounter = () => {
+                const remaining = maxLength - textarea.value.length;
+                counter.textContent = `${textarea.value.length} / ${maxLength} caracteres`;
+                if (remaining < 100) {
+                    counter.classList.add('text-warning');
+                }
+            };
+            
+            textarea.addEventListener('input', updateCounter);
+            updateCounter();
         });
     </script>
 </body>

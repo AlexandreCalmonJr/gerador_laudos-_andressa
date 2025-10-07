@@ -1,2 +1,5 @@
 Flask
 python-docx
+Werkzeug
+gunicorn
+Pillow
