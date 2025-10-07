@@ -4,56 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Laudo de Vistoria</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container my-5">
-        <h1 class="mb-4 text-center">Gerador de Laudo de Vistoria</h1>
+    <div class="container main-container">
+        <h1 class="mb-4 text-center"><i class="bi bi-file-earmark-text-fill"></i> Gerador de Laudo de Vistoria</h1>
 
-        <form action="/gerar" method="POST" enctype="multipart/form-data">
+        <form action="/gerar" method="POST" enctype="multipart/form-data" id="laudo-form">
             
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="geral-tab" data-bs-toggle="tab" data-bs-target="#geral" type="button" role="tab">Informações Gerais</button>
+                    <button class="nav-link active" id="geral-tab" data-bs-toggle="tab" data-bs-target="#geral" type="button" role="tab"><i class="bi bi-person-lines-fill"></i> Informações Gerais</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="comodos-tab" data-bs-toggle="tab" data-bs-target="#comodos" type="button" role="tab">Seções do Imóvel</button>
+                    <button class="nav-link" id="comodos-tab" data-bs-toggle="tab" data-bs-target="#comodos" type="button" role="tab"><i class="bi bi-house-door-fill"></i> Seções do Imóvel</button>
                 </li>
             </ul>
 
-            <div class="tab-content border border-top-0 p-3 mb-4" id="myTabContent">
-                <div class="tab-pane fade show active" id="geral" role="tabpanel">
+            <div class="tab-content border border-top-0 mb-4" id="myTabContent">
+                <div class="tab-pane fade show active p-3" id="geral" role="tabpanel">
+    
                     <fieldset class="mb-3">
-                        <legend>Locadores</legend>
+                        <legend class="fs-5 border-bottom pb-2 mb-3"><i class="bi bi-building"></i> Imóvel e Vistoria</legend>
+                        <div class="mb-3">
+                            <label class="form-label">Endereço Completo do Imóvel</label>
+                            <input type="text" name="ENDERECO_IMOVEL" class="form-control">
+                        </div>
                         <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Nome 1</label><input type="text" name="LOCADOR_NOME_1" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">CPF 1</label><input type="text" name="LOCADOR_CPF_1" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Nome 2</label><input type="text" name="LOCADOR_NOME_2" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">CPF 2</label><input type="text" name="LOCADOR_CPF_2" class="form-control"></div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Data da Vistoria</label>
+                                <input type="text" name="DATA_VISTORIA" class="form-control" placeholder="ex: 09 de julho de 2025">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Data do Contrato</label>
+                                <input type="text" name="DATA_CONTRATO" class="form-control" placeholder="ex: 09 de julho de 2025">
+                            </div>
                         </div>
                     </fieldset>
+                
                     <fieldset class="mb-3">
-                        <legend>Locatários</legend>
+                        <legend class="fs-5 border-bottom pb-2 mb-3"><i class="bi bi-person-badge"></i> Locadores</legend>
                         <div class="row">
-                             <div class="col-md-6 mb-3"><label class="form-label">Nome 1</label><input type="text" name="LOCATARIO_NOME_1" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">CPF 1</label><input type="text" name="LOCATARIO_CPF_1" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Nome 2</label><input type="text" name="LOCATARIO_NOME_2" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">CPF 2</label><input type="text" name="LOCATARIO_CPF_2" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Nome Locador 1</label><input type="text" name="LOCADOR_NOME_1" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">CPF Locador 1</label><input type="text" name="LOCADOR_CPF_1" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Nome Locador 2</label><input type="text" name="LOCADOR_NOME_2" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">CPF Locador 2</label><input type="text" name="LOCADOR_CPF_2" class="form-control"></div>
                         </div>
                     </fieldset>
+                    
                     <fieldset class="mb-3">
-                         <legend>Imóvel e Datas</legend>
-                         <div class="mb-3"><label class="form-label">Endereço Completo</label><input type="text" name="ENDERECO_IMOVEL" class="form-control"></div>
+                        <legend class="fs-5 border-bottom pb-2 mb-3"><i class="bi bi-people-fill"></i> Locatários</legend>
+                        <div class="row">
+                             <div class="col-md-6 mb-3"><label class="form-label">Nome Locatário 1</label><input type="text" name="LOCATARIO_NOME_1" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">CPF Locatário 1</label><input type="text" name="LOCATARIO_CPF_1" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Nome Locatário 2</label><input type="text" name="LOCATARIO_NOME_2" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">CPF Locatário 2</label><input type="text" name="LOCATARIO_CPF_2" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Contatos (Telefones)</label><input type="text" name="CONTATOS_LOCATARIAS" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Email</label><input type="email" name="EMAIL_LOCATARIAS" class="form-control"></div>
+                        </div>
+                    </fieldset>
+                
+                    <fieldset class="mb-3">
+                        <legend class="fs-5 border-bottom pb-2 mb-3"><i class="bi bi-person-workspace"></i> Corretor</legend>
                          <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Data da Vistoria</label><input type="text" name="DATA_VISTORIA" class="form-control" value="09 de julho de 2025"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Data do Contrato</label><input type="text" name="DATA_CONTRATO" class="form-control" value="09 de julho de 2025"></div>
-                         </div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Nome do Corretor</label><input type="text" name="NOME_CORRETOR" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">CRECI</label><input type="text" name="CRECI_CORRETOR" class="form-control"></div>
+                        </div>
                     </fieldset>
+                
                 </div>
 
-                <div class="tab-pane fade" id="comodos" role="tabpanel">
+                <div class="tab-pane fade p-3" id="comodos" role="tabpanel">
                     <div class="accordion" id="accordionComodos">
-                        {% for comodo_id, comodo_nome in [('externa', 'Área Externa'), ('sala', 'Sala'), ('cozinha', 'Cozinha'), ('banheiro_social', 'Banheiro Social'), ('quarto1', 'Quarto 1'), ('quarto2', 'Quarto 2'), ('servico', 'Área de Serviço'), ('gourmet', 'Área Gourmet'), ('banheiro_edicula', 'Banheiro Edícula'), ('laterais', 'Laterais')] %}
+                        {% for comodo_id, comodo_nome in [('externa', 'Área Externa'), ('sala', 'Sala'), ('cozinha', 'Cozinha'), ('banheiro_social', 'Banheiro Social'), ('quarto1', 'Quarto 1'), ('quarto2', 'Quarto 2'), ('servico', 'Área de Serviço'), ('fundos', 'Área dos Fundos'), ('gourmet', 'Área Gourmet'), ('banheiro_edicula', 'Banheiro Edícula'), ('laterais', 'Laterais')] %}
                         <div class="accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ comodo_id }}">
@@ -62,21 +89,27 @@
                             </h2>
                             <div id="collapse-{{ comodo_id }}" class="accordion-collapse collapse" data-bs-parent="#accordionComodos">
                                 <div class="accordion-body">
-                                    <div class="mb-3">
-                                        <label class="form-label">Apresentação</label>
-                                        <textarea name="APRESENTACAO_{{ comodo_id.upper() }}" class="form-control" rows="4"></textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Visão Geral</label>
-                                        <input type="text" name="VISAO_GERAL_{{ comodo_id.upper() }}" value="bom estado de conservação" class="form-control">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Sinalização</label>
-                                        <input type="text" name="SINALIZACAO_{{ comodo_id.upper() }}" value="N/A" class="form-control">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Imagens</label>
-                                        <input type="file" name="imagens_{{ comodo_id }}" class="form-control" multiple>
+                                    <div class="row">
+                                        <div class="col-md-7">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Apresentação</label>
+                                                <textarea name="APRESENTACAO_{{ comodo_id.upper() }}" class="form-control" rows="8" placeholder="Ex: Pintura em bom estado de conservação; Gramado com caminhos de pisos de pedras; Plantas decorativas..."></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="mb-3">
+                                                <label class="form-label">Visão Geral</label>
+                                                <input type="text" name="VISAO_GERAL_{{ comodo_id.upper() }}" value="bom estado de conservação" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Sinalização</label>
+                                                <input type="text" name="SINALIZACAO_{{ comodo_id.upper() }}" value="N/A" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold"><i class="bi bi-camera-fill"></i> Imagens</label>
+                                                <input type="file" class="filepond" name="imagens_{{ comodo_id }}" multiple>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -87,11 +120,28 @@
             </div>
 
             <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-lg">Gerar Laudo</button>
+                <button type="submit" id="btn-gerar" class="btn btn-primary btn-lg">
+                    <span id="btn-text">Gerar Laudo</span>
+                    <span id="loading-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
             </div>
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+    
+    <script>
+        // Inicializa o FilePond em todos os inputs de arquivo
+        FilePond.parse(document.body);
+
+        // Adiciona o listener para o envio do formulário
+        document.getElementById('laudo-form').addEventListener('submit', function() {
+            const btn = document.getElementById('btn-gerar');
+            btn.disabled = true; // Desabilita o botão
+            document.getElementById('btn-text').classList.add('d-none'); // Esconde o texto
+            document.getElementById('loading-spinner').classList.remove('d-none'); // Mostra o spinner
+        });
+    </script>
 </body>
 </html>
